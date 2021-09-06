@@ -1,0 +1,175 @@
+<MainPageScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    InitialPage:
+        padding: [5,5]
+        background_color:(1,1,1,1)
+        orientation: 'vertical'
+        GridLayout:
+            rows:1
+            spacing: 10
+            padding:[3,0]
+            size_hint: (1,0.1)
+            Label:
+                size_hint: (0.3,1)
+                text: ''
+            DownloadBullet:
+                canvas.before:
+                    Color:
+                        rgba: 1,0.3,0.3,1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint: (0.5,1)    
+            UploadBullet:
+                canvas.before:
+                    Color:
+                        rgba: 0.3,0.3,1,1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint: (0.5,1)
+            
+        TableAndGraph:
+            orientation: 'horizontal'
+            size_hint: (1,0.9)
+            TableView:
+                id: tableView
+                size_hint: (0.3,1)
+                do_scroll_x: False
+                do_scroll_y: True
+                always_overscroll: True
+                bar_color:(1,1,1,0.5)
+                Table:
+                    id: gen_table
+                    cols: 1
+                    size_hint:(1,None)
+                    height: self.minimum_height
+                    row_default_height: tableView.height/10
+                    row_force_default: True
+                           
+                     
+            GraphAndButtons:
+                orientation: 'vertical'
+                GeneralGraph:
+                    id: mainGraph
+                    size_hint: (1,0.9)
+                    text: 'grafico'
+                GridLayout:
+                    rows: 1
+                    size_hint: (1,0.1)
+                    padding:(10,10)
+                    spacing: 30
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: "FLUXO"
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: mainGraph.changeGraph(graph='Fluxo')
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: "PACOTES"
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: mainGraph.changeGraph(graph='Pacotes')
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: 'DIRECIONAL'
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: mainGraph.changeGraph(text='Direcional')
+
+
+<SpecificPageScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint: (1,0.1)
+            orientation: 'horizontal'
+            Button:
+                text: 'Back'
+                on_press: root.changePage()
+            DownloadSpecificBullet:
+                canvas.before:
+                    Color:
+                        rgba: 1,0.3,0.3,1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint: (0.5,1)
+            UploadSpecificBullet:
+                canvas.before:
+                    Color:
+                        rgba: 0.3,0.3,1,1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint: (0.5,1)
+
+        BoxLayout:
+            orientation: 'horizontal'
+            TableView:
+                id: tableView
+                size_hint: (0.3,1)
+                do_scroll_x: False
+                do_scroll_y: True
+                always_overscroll: True
+                bar_color:(1,1,1,0.5)
+                SpecificTable:
+                    id: spec_table
+                    cols: 1
+                    size_hint:(1,None)
+                    height: self.minimum_height
+                    row_default_height: tableView.height/10
+                    row_force_default: True
+                    
+            BoxLayout:
+                orientation: 'vertical'
+                SpecificGraph:
+                    id: specificGraph
+                    size_hint: (1,0.9)
+                GridLayout:
+                    rows: 1
+                    size_hint: (1,0.1)
+                    padding:(10,10)
+                    spacing: 30
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: "FLUXO"
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: specificGraph.changeGraph(graph='Fluxo')
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: "PACOTES"
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: specificGraph.changeGraph(graph='Pacotes')
+                    MDRectangleFlatButton:
+                        size_hint: (1,1)
+                        text: 'DIRECIONAL'
+                        theme_text_color: "Custom"
+                        text_color: 52/255, 137/255, 235/255, 1
+                        line_color: 52/255, 137/255, 235/255, 1
+                        on_press: specificGraph.changeGraph(text='Botao 3')
+            
+            
+
+
+        
+
+
+
+                    
+                    
+
+        
