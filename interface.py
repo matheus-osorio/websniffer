@@ -175,7 +175,6 @@ class GeneralGraph(BoxLayout):
             self.ax1.plot(xs,ys[key],label=key)        
         
         self.yValues = ys
-        self.ax1.get_legend().remove()
         self.ax1.legend(loc='upper left')
         self.graphCanvas.draw_idle()
 
