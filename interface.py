@@ -16,7 +16,7 @@ from matplotlib import style
 
 mpl_use('module://kivy.garden.matplotlib.backend_kivy')
 style.use('fivethirtyeight')
-intervals = 2
+intervals = 1
 aggr = Aggregator(intervals)
 #Componentes
 from kivy.uix.button import Button 
@@ -30,8 +30,9 @@ from kivy.uix.scrollview import ScrollView
 #Screen
 from kivy.uix.screenmanager import ScreenManager, Screen
 
+pallete = open('pallete.txt').read().split('\n')[:-1]
 
-
+Clock.max_iteration = 5
 class InitialPage(BoxLayout):
     pass
 
@@ -160,7 +161,7 @@ class GeneralGraph(BoxLayout):
         ys = {
             'total': aggr.values['total']['total']
         }
-
+        current_color = 0
         for prog in aggr.values['programs']:
             ys[prog] = aggr.values['programs'][prog]['total']['total']
         
@@ -172,7 +173,8 @@ class GeneralGraph(BoxLayout):
                 diff = len(ys[key]) - length
                 ys[key] = ys[key][: -diff]
             
-            self.ax1.plot(xs,ys[key],label=key)        
+            self.ax1.plot(xs,ys[key],label=key, color = pallete[current_color])        
+            current_color+=1
         
         self.yValues = ys
         self.ax1.legend(loc='upper left')
@@ -306,7 +308,7 @@ class SpecificGraph(BoxLayout):
         ys = {
             'total': aggr.values['programs'][App.specificName]['total']['total']
         }
-
+        current_color = 0
         for conn in aggr.values['programs'][App.specificName]['connections']:
             ip = int(conn)
             ip_name = ''
@@ -324,7 +326,11 @@ class SpecificGraph(BoxLayout):
                 diff = len(ys[key]) - length
                 ys[key] = ys[key][: -diff]
             
-            self.ax1.plot(xs,ys[key],label=key)        
+            if(current_color < len(pallete)):
+                self.ax1.plot(xs,ys[key],label=key, color = pallete[current_color])  
+                current_color+=1      
+            else:
+                self.ax1.plot(xs,ys[key],label=key) 
         
         self.yValues = ys
         self.ax1.legend(loc='upper left')
