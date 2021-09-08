@@ -5,7 +5,7 @@ from kivymd.app import MDApp
 from kivy.clock import Clock
 from kivymd.uix.list import ThreeLineListItem
 from kivymd.uix.list import IconLeftWidget
-
+import socket, struct
 from aggregator import Aggregator
 #graficos
 import matplotlib.pyplot as plt
@@ -33,6 +33,9 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 pallete = open('pallete.txt').read().split('\n')[:-1]
 
 Clock.max_iteration = 5
+
+def ipLongToString(value):
+    return socket.inet_ntoa(struct.pack('!L', value))
 class InitialPage(BoxLayout):
     pass
 
@@ -142,7 +145,7 @@ class GeneralGraph(BoxLayout):
         super().__init__(**kwargs)
 
         #internas
-        self.graphType = 'Fluxo'
+        self.graphType = 'fluxo'
         #grafico
         self.fig, self.ax1 = plt.subplots()
         self.ax1.plot([1,2,3],[1,2,3], label='a')
@@ -151,23 +154,50 @@ class GeneralGraph(BoxLayout):
         self.add_widget(self.graphCanvas)
         Clock.schedule_interval(self.update,intervals)
         
-    def changeGraph(self,**kwargs):
-        self.graphType = kwargs['graph']
+    def changeGraph(self,graph):
+        self.graphType = graph
         self.update()
+
+    def fluxo(self):
+        ys = {
+            'total': aggr.values['total']['total']
+        }
+        for prog in aggr.values['programs']:
+            ys[prog] = aggr.values['programs'][prog]['total']['total']
+        
+        return ys
+    
+    def pacotes(self):
+        ys = {
+            'total': aggr.values['package']['total']
+        }
+        for prog in aggr.values['programs']:
+            ys[prog] = aggr.values['programs'][prog]['package']['total']
+        
+        return ys
+
+    def direcional(self):
+        ys = {
+            'incoming': aggr.values['total']['incoming'],
+            'outgoing': aggr.values['total']['outgoing']
+        }
+        return ys
+
 
     def update(self,*args):
         if App.currentPage != 'main':
             return
-        ys = {
-            'total': aggr.values['total']['total']
+        graphTypes = {
+            'fluxo': self.fluxo,
+            'direcional': self.direcional,
+            'pacotes': self.pacotes
         }
-        current_color = 0
-        for prog in aggr.values['programs']:
-            ys[prog] = aggr.values['programs'][prog]['total']['total']
-        
-        length = len(ys['total'])
+        ys = graphTypes[self.graphType]()
+        keys = list(ys.keys())
+        length = len(ys[keys[0]])
         xs = [i for i in range(length)]
         self.ax1.clear()
+        current_color = 0
         for key in ys:
             if(length < len(ys[key])):
                 diff = len(ys[key]) - length
@@ -227,7 +257,7 @@ class SpecificTable(GridLayout):
                 return aggr.values['programs'][App.specificName]['connections']
 
             self.add_item({
-                'name': str(conn),
+                'name': ipLongToString(conn),
                 'caller': caller
             })
 
@@ -244,7 +274,7 @@ class IconSpecificItem(BoxLayout):
             return
         sizeText = ['B','KB','MB','GB','TB']
         data = self.get_value()
-        if int(self.button.text) not in data:
+        if self.button.text not in data:
             return
         data = data[int(self.button.text)]['total']['total'][-1]
         size = 0
@@ -290,7 +320,7 @@ class SpecificGraph(BoxLayout):
         super().__init__(**kwargs)
 
         #internas
-        self.graphType = 'Fluxo'
+        self.graphType = 'fluxo'
         #grafico
         self.fig, self.ax1 = plt.subplots()
         self.ax1.plot([1,2,3],[1,2,3])
@@ -298,29 +328,53 @@ class SpecificGraph(BoxLayout):
         self.add_widget(self.graphCanvas)
         Clock.schedule_interval(self.update,intervals)
         
-    def changeGraph(self,**kwargs):
-        self.graphType = kwargs['graph']
+    def changeGraph(self,graph):
+        self.graphType = graph
         self.update()
 
-    def update(self,*args):
-        if App.currentPage != 'specific':
-            return
+    def fluxo(self):
         ys = {
             'total': aggr.values['programs'][App.specificName]['total']['total']
         }
         current_color = 0
         for conn in aggr.values['programs'][App.specificName]['connections']:
             ip = int(conn)
-            ip_name = ''
-            while(ip > 1000):
-                ip_name = '.'  + str(int(ip%1000)) + ip_name
-                ip = int(ip/1000)
-            ip_name = str(ip) + ip_name
-            ys[ip_name] = aggr.values['programs'][App.specificName]['connections'][conn]['total']['total']
+            
+            ys[ipLongToString(ip)] = aggr.values['programs'][App.specificName]['connections'][conn]['total']['total']
         
-        length = len(ys['total'])
+        return ys
+    
+    def pacotes(self):
+        ys = {
+            'total': aggr.values['programs'][App.specificName]['package']['total']
+        }
+        for conn in aggr.values['programs'][App.specificName]['connections']:
+            ip = int(conn)
+            ys[ipLongToString(ip)] = aggr.values['programs'][App.specificName]['connections'][conn]['package']['total']
+        
+        return ys
+    def direcional(self):
+        return {
+            'incoming': aggr.values['programs'][App.specificName]['total']['incoming'],
+            'outgoing': aggr.values['programs'][App.specificName]['total']['outgoing']
+        }
+
+    def update(self,*args):
+        if App.currentPage != 'specific':
+            return
+        
+        graphTypes = {
+            'fluxo': self.fluxo,
+            'pacotes': self.pacotes,
+            'direcional': self.direcional,
+
+        }
+        ys = graphTypes[self.graphType]()
+        keys = list(ys.keys())
+        length = len(ys[keys[0]])
         xs = [i for i in range(length)]
         self.ax1.clear()
+        current_color = 0
         for key in ys:
             if(length < len(ys[key])):
                 diff = len(ys[key]) - length

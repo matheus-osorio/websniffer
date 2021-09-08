@@ -70,33 +70,41 @@
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: mainGraph.changeGraph(graph='Fluxo')
+                        on_press: mainGraph.changeGraph(graph='fluxo')
                     MDRectangleFlatButton:
                         size_hint: (1,1)
                         text: "PACOTES"
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: mainGraph.changeGraph(graph='Pacotes')
+                        on_press: mainGraph.changeGraph(graph='pacotes')
                     MDRectangleFlatButton:
                         size_hint: (1,1)
                         text: 'DIRECIONAL'
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: mainGraph.changeGraph(text='Direcional')
+                        on_press: mainGraph.changeGraph(graph='direcional')
 
 
 <SpecificPageScreen>:
     BoxLayout:
+        padding: [5,5]
         orientation: 'vertical'
-        BoxLayout:
+        GridLayout:
+            rows: 1
+            padding: [3,0]
+            spacing: 10
             size_hint: (1,0.1)
-            orientation: 'horizontal'
-            Button:
+            MDRectangleFlatButton:
+                size_hint: (0.3,1)
                 text: 'Back'
+                theme_text_color: "Custom"
+                text_color: 52/255, 137/255, 235/255, 1
+                line_color: 52/255, 137/255, 235/255, 1
                 on_press: root.changePage()
             DownloadSpecificBullet:
+                size_hint: (0.5,1)
                 canvas.before:
                     Color:
                         rgba: 1,0.3,0.3,1
@@ -105,6 +113,7 @@
                         size: self.size
                 size_hint: (0.5,1)
             UploadSpecificBullet:
+                size_hint: (0.5,1)
                 canvas.before:
                     Color:
                         rgba: 0.3,0.3,1,1
@@ -146,21 +155,21 @@
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: specificGraph.changeGraph(graph='Fluxo')
+                        on_press: specificGraph.changeGraph(graph='fluxo')
                     MDRectangleFlatButton:
                         size_hint: (1,1)
                         text: "PACOTES"
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: specificGraph.changeGraph(graph='Pacotes')
+                        on_press: specificGraph.changeGraph(graph='pacotes')
                     MDRectangleFlatButton:
                         size_hint: (1,1)
                         text: 'DIRECIONAL'
                         theme_text_color: "Custom"
                         text_color: 52/255, 137/255, 235/255, 1
                         line_color: 52/255, 137/255, 235/255, 1
-                        on_press: specificGraph.changeGraph(text='Botao 3')
+                        on_press: specificGraph.changeGraph(graph='direcional')
             
             
 
