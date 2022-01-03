@@ -1,3 +1,6 @@
+import os
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
+
 import kivy
 import kivymd
 from kivy.app import App
@@ -5,6 +8,7 @@ from kivymd.app import MDApp
 from kivy.clock import Clock
 from kivymd.uix.list import ThreeLineListItem
 from kivymd.uix.list import IconLeftWidget
+from kivy.config import Config
 import socket, struct
 from aggregator import Aggregator
 #graficos
@@ -14,6 +18,7 @@ from matplotlib import use as mpl_use
 import matplotlib.animation as animation
 from matplotlib import style
 
+Config.set('kivy','window_icon','icon.png')
 mpl_use('module://kivy.garden.matplotlib.backend_kivy')
 style.use('fivethirtyeight')
 intervals = 1
@@ -435,6 +440,8 @@ class MainPageAPP(MDApp):
     specificName = ''
     currentPage = 'main'
     def build(self, **kwargs):
+        self.title = 'Web Sniffer'
+        self.icon = 'icon.png'
         self.load_kv('interface.kv')
         sc = ScreenManager()
         self.main = MainPageScreen(name='mainPage')

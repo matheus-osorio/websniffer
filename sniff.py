@@ -14,7 +14,7 @@ import time
 """
 
 class Sniff: 
-
+ 
     _packet: CustomPacket
     _time_stamp: int
 

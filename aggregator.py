@@ -35,6 +35,7 @@ class Aggregator:
         t2.start()
     
     def add_value(self, pct):
+
         program = pct['proc_name']
         connection = pct['Ip']
         protocol = pct['t_protocol']
@@ -133,7 +134,6 @@ class Aggregator:
 
         
     def update_array(self):
-
         if(self.len < self.arr_length):
             self.len += 1
         
