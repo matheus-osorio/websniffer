@@ -20,7 +20,19 @@ class Aggregator:
             },
             'programs': {}
         }
+    
+    def update_total(self, obj, sum_value):
+        multiplier = obj['multiplier']
+        number = obj['number']
+        number += sum_value/(10**(3*multiplier))
+        if(number > 1000):
+            multiplier += 1
+            number /=1000
         
+        obj['multiplier'] = multiplier
+        obj['number'] = number
+        return obj
+
     def define_function(self, obj):
         self.functions.update(obj)
 
@@ -35,7 +47,6 @@ class Aggregator:
         t2.start()
     
     def add_value(self, pct):
-
         program = pct['proc_name']
         connection = pct['Ip']
         protocol = pct['t_protocol']
@@ -53,6 +64,10 @@ class Aggregator:
                 'total': [0 for i in range(self.len)],
                 'incoming': [0 for i in range(self.len)],
                 'outgoing': [0 for i in range(self.len)]
+                },
+                'accumulated': {
+                    'multiplier': 0,
+                    'number': 0
                 },
                 'connections': {}
             }
@@ -78,6 +93,10 @@ class Aggregator:
                 'incoming': [0 for i in range(self.len)],
                 'outgoing': [0 for i in range(self.len)]
                 },
+                'accumulated': {
+                    'multiplier': 0,
+                    'number': 0
+                },
                 'protocol': {
                     'TCP': {
                         'total': {
@@ -97,6 +116,10 @@ class Aggregator:
                         'total': [0 for i in range(self.len)],
                         'incoming': [0 for i in range(self.len)],
                         'outgoing': [0 for i in range(self.len)]
+                        },
+                        'accumulated': {
+                            'multiplier': 0,
+                            'number': 0
                         },
 
                     },
@@ -119,6 +142,10 @@ class Aggregator:
                         'total': [0 for i in range(self.len)],
                         'incoming': [0 for i in range(self.len)],
                         'outgoing': [0 for i in range(self.len)]
+                        },
+                        'accumulated': {
+                            'multiplier': 0,
+                            'number': 0
                         },
                     }
                 }
@@ -151,6 +178,8 @@ class Aggregator:
             prog_pack_in = 0
             prog_pack_out = 0
 
+            prog_accumulated = program['accumulated']
+
             for conn_name in program['connections']:
                 connection = program['connections'][conn_name]
                 conn_in = 0
@@ -159,6 +188,8 @@ class Aggregator:
                 conn_pack_in = 0
                 conn_pack_out = 0
 
+                conn_accumulated = connection['accumulated']
+
                 for prot_name in connection['protocol']:
                     protocol = connection['protocol'][prot_name]
                     prot_in = 0
@@ -166,7 +197,9 @@ class Aggregator:
 
                     prot_in, prot_out = protocol['second']['incoming'], protocol['second']['outgoing']
                     pack_in,pack_out = protocol['pack_count']['incoming'], protocol['pack_count']['outgoing']
-
+                    
+                    prot_accumulated = protocol['accumulated']
+                    
                     protocol['second']['incoming'] = 0
                     protocol['second']['outgoing'] = 0
 
@@ -200,6 +233,8 @@ class Aggregator:
 
                     conn_pack_in += pack_in
                     conn_pack_out += pack_out
+                    
+                    self.update_total(prot_accumulated,prot_in + prot_out)
                 
                 connection['total']['incoming'].append(conn_in)
                 connection['total']['outgoing'].append(conn_out)
@@ -222,6 +257,8 @@ class Aggregator:
 
                 prog_pack_in += conn_pack_in
                 prog_pack_out += conn_pack_out
+
+                self.update_total(conn_accumulated,conn_in + conn_out)
 
 
             program['total']['incoming'].append(prog_in)
@@ -246,6 +283,8 @@ class Aggregator:
 
             total_pack_in += prog_pack_in
             total_pack_out += prog_pack_out
+
+            self.update_total(prog_accumulated,prog_in + prog_out)
         
         self.values['total']['incoming'].append(total_in)
         self.values['total']['outgoing'].append(total_out)

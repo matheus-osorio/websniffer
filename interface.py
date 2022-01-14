@@ -71,7 +71,7 @@ class IconItem(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
-        self.button = ThreeLineListItem(text= '', secondary_text='0 B/s')
+        self.button = ThreeLineListItem(text= '', secondary_text='0 B')
 
         self.button.bind(on_press=self.on_press)
         self.add_widget(self.button)
@@ -82,13 +82,14 @@ class IconItem(BoxLayout):
         if App.currentPage != 'main':
             return
         sizeText = ['B','KB','MB','GB','TB']
-        data = self.get_value()['total']['total'][-1]
-        size = 0
+        accumulated = self.get_value()['accumulated']
+        data = accumulated['number']
+        size = accumulated['multiplier']
         while(data > 1000):
             data = data/1000
             size+=1
 
-        self.button.secondary_text = str(round(data,1)) + ' ' + sizeText[size] + '/s'
+        self.button.secondary_text = str(round(data,1)) + ' ' + sizeText[size]
     
     def start(self, params):
         self.button.text = params['name']
@@ -150,11 +151,13 @@ class GeneralGraph(BoxLayout):
         super().__init__(**kwargs)
 
         #internas
-        self.graphType = 'fluxo'
+        self.graphType = 'direcional'
         #grafico
         self.fig, self.ax1 = plt.subplots()
         self.ax1.plot([1,2,3],[1,2,3], label='a')
         self.ax1.legend(loc='upper left')
+        self.fig.set_facecolor('white')
+        self.ax1.set_facecolor('white')
         self.graphCanvas = self.fig.canvas
         self.add_widget(self.graphCanvas)
         Clock.schedule_interval(self.update,intervals)
@@ -263,6 +266,7 @@ class SpecificTable(GridLayout):
 
             self.add_item({
                 'name': ipLongToString(conn),
+                'id': conn,
                 'caller': caller
             })
 
@@ -270,7 +274,7 @@ class IconSpecificItem(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
-        self.button = ThreeLineListItem(text= '', secondary_text='0 B/s')
+        self.button = ThreeLineListItem(text= '', secondary_text='0 B')
         self.add_widget(self.button)
         Clock.schedule_interval(self.update,intervals)
 
@@ -279,18 +283,17 @@ class IconSpecificItem(BoxLayout):
             return
         sizeText = ['B','KB','MB','GB','TB']
         data = self.get_value()
-        if self.button.text not in data:
+        if self.id not in data:
             return
-        data = data[int(self.button.text)]['total']['total'][-1]
-        size = 0
-        while(data > 1000):
-            data = data/1000
-            size+=1
+        accumulated = data[self.id]['accumulated']
+        data = accumulated['number']
+        size = accumulated['multiplier']
 
-        self.button.secondary_text = str(round(data,1)) + ' ' + sizeText[size] + '/s'
+        self.button.secondary_text = str(round(data,1)) + ' ' + sizeText[size]
     
     def start(self, params):
         self.button.text = params['name']
+        self.id = params['id']
         self.get_value = params['caller']
     
   
@@ -325,10 +328,12 @@ class SpecificGraph(BoxLayout):
         super().__init__(**kwargs)
 
         #internas
-        self.graphType = 'fluxo'
+        self.graphType = 'direcional'
         #grafico
         self.fig, self.ax1 = plt.subplots()
         self.ax1.plot([1,2,3],[1,2,3])
+        self.fig.set_facecolor('white')
+        self.ax1.set_facecolor('white')
         self.graphCanvas = self.fig.canvas
         self.add_widget(self.graphCanvas)
         Clock.schedule_interval(self.update,intervals)
