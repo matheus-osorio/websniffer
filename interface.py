@@ -96,7 +96,6 @@ class IconItem(BoxLayout):
         self.get_value = params['caller']
     
     def on_press(self, *args, **kwargs):
-        print('entrou on_press')
         App.main.changePage(self.button.text)
 
     
@@ -238,7 +237,6 @@ class DownloadSpecificBullet(BoxLayout):
 
         if App.specificName == '':
             return 0
-
         sizeText = ['B','KB','MB','GB','TB']
         data = aggr.values['programs'][App.specificName]['total']['incoming'][-1]
         size = 0
@@ -259,21 +257,24 @@ class SpecificTable(GridLayout):
     
     def do_items(self):
         self.clear_widgets()
-        
+        appName = App.specificName
         for conn in aggr.values['programs'][App.specificName]['connections']:
-            def caller():
-                return aggr.values['programs'][App.specificName]['connections']
+            def creator(conn_name):
+                def caller():
+                    return aggr.values['programs'][appName]['connections'][conn_name]
+                return caller
 
             self.add_item({
                 'name': ipLongToString(conn),
                 'id': conn,
-                'caller': caller
+                'caller': creator(conn),
+                'program': App.specificName
             })
 
 class IconSpecificItem(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.button = ThreeLineListItem(text= '', secondary_text='0 B')
         self.add_widget(self.button)
         Clock.schedule_interval(self.update,intervals)
@@ -283,9 +284,7 @@ class IconSpecificItem(BoxLayout):
             return
         sizeText = ['B','KB','MB','GB','TB']
         data = self.get_value()
-        if self.id not in data:
-            return
-        accumulated = data[self.id]['accumulated']
+        accumulated = data['accumulated']
         data = accumulated['number']
         size = accumulated['multiplier']
 
