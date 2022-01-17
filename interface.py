@@ -37,7 +37,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 
 pallete = open('pallete.txt').read().split('\n')[:-1]
 
-Clock.max_iteration = 5
+# Clock.max_iteration = 5
 
 def ipLongToString(value):
     return socket.inet_ntoa(struct.pack('!L', value))
@@ -60,12 +60,20 @@ class GraphAndButtons(BoxLayout):
 class Table(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.call_list = []
+        Clock.schedule_interval(self.update,intervals)
+    
+    def update(self, *args):
+        if App.currentPage != 'main':
+            return
+        for call in self.call_list:
+            call()
     
     def add_item(self, parameters = {}):
         btn = IconItem()
         btn.start(parameters)
         self.add_widget(btn)
-        
+        self.call_list.append(btn.update)
 
 class IconItem(BoxLayout):
     def __init__(self, **kwargs):
@@ -76,11 +84,9 @@ class IconItem(BoxLayout):
         self.button.bind(on_press=self.on_press)
         self.add_widget(self.button)
         self.bind(on_press=self.on_press)
-        Clock.schedule_interval(self.update,intervals)
+        # Clock.schedule_interval(self.update,intervals)
 
     def update(self, *args):
-        if App.currentPage != 'main':
-            return
         sizeText = ['B','KB','MB','GB','TB']
         accumulated = self.get_value()['accumulated']
         data = accumulated['number']
@@ -249,14 +255,24 @@ class DownloadSpecificBullet(BoxLayout):
 class SpecificTable(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.call_list = []
+        Clock.schedule_interval(self.update,intervals)
+
+    def update(self, *args):
+        if App.currentPage != 'specific':
+            return
+        for call in self.call_list:
+            call()
     
     def add_item(self, parameters):
         btn = IconSpecificItem()
         btn.start(parameters)
         self.add_widget(btn)
+        self.call_list.append(btn.update)
     
     def do_items(self):
         self.clear_widgets()
+        self.call_list = []
         appName = App.specificName
         for conn in aggr.values['programs'][App.specificName]['connections']:
             def creator(conn_name):
@@ -277,11 +293,8 @@ class IconSpecificItem(BoxLayout):
 
         self.button = ThreeLineListItem(text= '', secondary_text='0 B')
         self.add_widget(self.button)
-        Clock.schedule_interval(self.update,intervals)
 
     def update(self, *args):
-        if App.currentPage != 'specific':
-            return
         sizeText = ['B','KB','MB','GB','TB']
         data = self.get_value()
         accumulated = data['accumulated']
