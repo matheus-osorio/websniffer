@@ -2,9 +2,10 @@ from sniff import Sniff
 import threading 
 class Aggregator:
     def __init__(self, interval_time):
-        self.sniffer = Sniff(self.add_value)
+        self.sniffer = Sniff(self.add_to_list)
         self.len = 1
         self.arr_length = 60
+        self.call_list = []
         self.interval_time = interval_time
         self.functions = {}
         self.values = {
@@ -36,15 +37,28 @@ class Aggregator:
     def define_function(self, obj):
         self.functions.update(obj)
 
+    def adder_function(self):
+        interval = threading.Event()
+        while not interval.wait(0.001):
+            if len(self.call_list):
+                value = self.call_list.pop(0)
+                self.add_value(value)
+    
+    def add_to_list(self,pct):
+        self.call_list.append(pct)
+    
     def start(self):
-
         t = threading.Thread(target=self.sniffer.start)
         t.daemon = True
         t.start()
-
         t2 = threading.Thread(target=self.interval)
         t2.daemon = True
         t2.start()
+        for i in range(3):
+            thread = threading.Thread(target=self.adder_function)
+            thread.daemon = True
+            thread.start()
+
     
     def add_value(self, pct):
         program = pct['proc_name']
