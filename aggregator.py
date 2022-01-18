@@ -1,7 +1,9 @@
 from sniff import Sniff
 import threading 
+import json
 class Aggregator:
     def __init__(self, interval_time):
+        self.file = open('full_program.txt','w')
         self.sniffer = Sniff(self.add_to_list)
         self.len = 1
         self.arr_length = 60
@@ -45,6 +47,7 @@ class Aggregator:
                 self.add_value(value)
     
     def add_to_list(self,pct):
+        self.file.write(json.dumps(pct) + '\n')
         self.call_list.append(pct)
     
     def start(self):

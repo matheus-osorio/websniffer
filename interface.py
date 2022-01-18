@@ -1,6 +1,6 @@
 import os
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
-
+from kivy.core.window import Window
 import kivy
 import kivymd
 from kivy.app import App
@@ -457,6 +457,7 @@ class MainPageAPP(MDApp):
     specificName = ''
     currentPage = 'main'
     def build(self, **kwargs):
+        Window.bind(on_request_close=self.on_request_close)
         self.title = 'Web Sniffer'
         self.icon = 'icon.png'
         self.load_kv('interface.kv')
@@ -466,6 +467,10 @@ class MainPageAPP(MDApp):
         sc.add_widget(self.main)
         sc.add_widget(self.specific)
         return sc
+    
+    def on_request_close(self, *args):
+        print('entrou aqui')
+        aggr.file.close()
 
         
 
