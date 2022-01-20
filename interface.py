@@ -14,9 +14,12 @@ from aggregator import Aggregator
 #graficos
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import random as rd
 from matplotlib import use as mpl_use
 import matplotlib.animation as animation
 from matplotlib import style
+
+from kivy.garden.graph import SmoothLinePlot, Graph
 
 Config.set('kivy','window_icon','icon.png')
 mpl_use('module://kivy.garden.matplotlib.backend_kivy')
@@ -151,22 +154,105 @@ class UploadBullet(BoxLayout):
         self.listItem.secondary_text = sizeText[size] + '/s'
 
 
+# class GeneralGraph(BoxLayout):
+#     def __init__(self,**kwargs):
+#         super().__init__(**kwargs)
+
+#         #internas
+#         self.graphType = 'direcional'
+#         #grafico
+#         self.fig, self.ax1 = plt.subplots()
+#         self.ax1.plot([1,2,3],[1,2,3], label='a')
+#         self.ax1.legend(loc='upper left')
+#         self.fig.set_facecolor('white')
+#         self.ax1.set_facecolor('white')
+#         self.graphCanvas = self.fig.canvas
+#         self.add_widget(self.graphCanvas)
+#         Clock.schedule_interval(self.update,intervals)
+        
+#     def changeGraph(self,graph):
+#         self.graphType = graph
+#         self.update()
+
+#     def fluxo(self):
+#         ys = {
+#             'total': aggr.values['total']['total']
+#         }
+#         for prog in aggr.values['programs']:
+#             ys[prog] = aggr.values['programs'][prog]['total']['total']
+        
+#         return ys
+    
+#     def pacotes(self):
+#         ys = {
+#             'total': aggr.values['package']['total']
+#         }
+#         for prog in aggr.values['programs']:
+#             ys[prog] = aggr.values['programs'][prog]['package']['total']
+        
+#         return ys
+
+#     def direcional(self):
+#         ys = {
+#             'incoming': aggr.values['total']['incoming'],
+#             'outgoing': aggr.values['total']['outgoing']
+    #     }
+    #     return ys
+
+
+    # def update(self,*args):
+    #     if App.currentPage != 'main':
+    #         return
+    #     graphTypes = {
+    #         'fluxo': self.fluxo,
+    #         'direcional': self.direcional,
+    #         'pacotes': self.pacotes
+    #     }
+    #     ys = graphTypes[self.graphType]()
+    #     keys = list(ys.keys())
+    #     length = len(ys[keys[0]])
+    #     xs = [i for i in range(length)]
+    #     self.ax1.clear()
+    #     current_color = 0
+    #     for key in ys:
+    #         if(length < len(ys[key])):
+    #             diff = len(ys[key]) - length
+    #             ys[key] = ys[key][: -diff]
+            
+    #         self.ax1.plot(xs,ys[key],label=key, color = pallete[current_color])        
+    #         current_color+=1
+        
+    #     self.yValues = ys
+    #     self.ax1.legend(loc='upper left')
+    #     self.graphCanvas.draw_idle()
+
+
+
 class GeneralGraph(BoxLayout):
     def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-
-        #internas
-        self.graphType = 'direcional'
-        #grafico
-        self.fig, self.ax1 = plt.subplots()
-        self.ax1.plot([1,2,3],[1,2,3], label='a')
-        self.ax1.legend(loc='upper left')
-        self.fig.set_facecolor('white')
-        self.ax1.set_facecolor('white')
-        self.graphCanvas = self.fig.canvas
-        self.add_widget(self.graphCanvas)
-        Clock.schedule_interval(self.update,intervals)
         
+        super().__init__(**kwargs)
+        self.rgb_pallete = [[rd.random(),rd.random(),rd.random()] for i in range(100)]
+        self.my_graph = Graph(
+        xlabel='Tempo',
+        ylabel='Fluxo',
+        y_ticks_major=100,
+        y_grid_label=True,
+        x_grid_label=True,
+        padding=4,
+        xlog=False,
+        ylog=False,
+        x_grid=True,
+        y_grid=True,
+        ymin=0,
+        ymax=1000,
+        xmax=60,
+        )
+        self.graphType = 'fluxo'
+
+        self.add_widget(self.my_graph)
+        Clock.schedule_interval(self.update,intervals)
+
     def changeGraph(self,graph):
         self.graphType = graph
         self.update()
@@ -196,10 +282,12 @@ class GeneralGraph(BoxLayout):
         }
         return ys
 
-
-    def update(self,*args):
-        if App.currentPage != 'main':
-            return
+    def update(self, *args):
+        graphTypes = {
+            'fluxo': self.fluxo,
+            'direcional': self.direcional,
+            'pacotes': self.pacotes
+        }
         graphTypes = {
             'fluxo': self.fluxo,
             'direcional': self.direcional,
@@ -208,20 +296,22 @@ class GeneralGraph(BoxLayout):
         ys = graphTypes[self.graphType]()
         keys = list(ys.keys())
         length = len(ys[keys[0]])
-        xs = [i for i in range(length)]
-        self.ax1.clear()
+        xs = list(range(length))
         current_color = 0
+
+        for plot in self.my_graph.plots:
+            self.my_graph.remove_plot(plot)
+        max_value = 1
         for key in ys:
-            if(length < len(ys[key])):
-                diff = len(ys[key]) - length
-                ys[key] = ys[key][: -diff]
-            
-            self.ax1.plot(xs,ys[key],label=key, color = pallete[current_color])        
+            plot = SmoothLinePlot(color=self.rgb_pallete[current_color])
+            max_y = max(ys[key])
+            max_value = max(max_value,max_y)
             current_color+=1
+            plot.points = list(zip(xs,ys[key]))
+            self.my_graph.add_plot(plot)
         
-        self.yValues = ys
-        self.ax1.legend(loc='upper left')
-        self.graphCanvas.draw_idle()
+        self.my_graph.ymax = max_value
+        
 
 
 class ButtonLine(BoxLayout):
